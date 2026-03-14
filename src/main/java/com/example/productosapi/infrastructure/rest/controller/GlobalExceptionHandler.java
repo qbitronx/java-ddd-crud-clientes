@@ -1,6 +1,7 @@
 package com.example.productosapi.infrastructure.rest.controller;
 
 import com.example.productosapi.domain.exception.BusinessException;
+import com.example.productosapi.domain.exception.ClienteNotFoundException;
 import com.example.productosapi.domain.exception.ProductoNotFoundException;
 import com.example.productosapi.infrastructure.rest.dto.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +30,24 @@ public class GlobalExceptionHandler {
             HttpServletRequest request) {
 
         log.error("Producto no encontrado: {}", ex.getMessage());
+
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                .message(ex.getMessage())
+                .path(request.getRequestURI())
+                .build();
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(ClienteNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleClienteNotFoundException(
+            ClienteNotFoundException ex,
+            HttpServletRequest request) {
+
+        log.error("Cliente no encontrado: {}", ex.getMessage());
 
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
